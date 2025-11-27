@@ -26,4 +26,11 @@ export interface PerformanceApplicationDetails extends PerformanceApplication {
   };
 }
 
+export interface PerformanceAnalysis {
+  response: string;
+  sources: string[];
+  confidence?: number;
+}
+
+
 

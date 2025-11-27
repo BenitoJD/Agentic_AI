@@ -1,4 +1,7 @@
-import type { PerformanceApplicationDetails } from "../../types/performance";
+import type {
+  PerformanceAnalysis,
+  PerformanceApplicationDetails,
+} from "../../types/performance";
 import { StatusBadge } from "./StatusBadge";
 import { PerformanceChart } from "./PerformanceChart";
 import { MessageSquare, X } from "lucide-react";
@@ -12,6 +15,8 @@ interface ApplicationDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
   onBrainstorm: () => void;
+  analysis?: PerformanceAnalysis | null;
+  analysisLoading?: boolean;
 }
 
 export const ApplicationDetailModal = ({
@@ -19,6 +24,8 @@ export const ApplicationDetailModal = ({
   isOpen,
   onClose,
   onBrainstorm,
+  analysis,
+  analysisLoading,
 }: ApplicationDetailModalProps) => {
   if (!application) return null;
 
@@ -74,14 +81,33 @@ export const ApplicationDetailModal = ({
               </div>
             </div>
 
-            <Card className="p-6">
-              <h3 className="mb-4 text-lg font-semibold">
+            <Card className="p-6 space-y-3">
+              <h3 className="text-lg font-semibold">
                 Analysis &amp; Reasoning
               </h3>
               <div className="prose prose-sm max-w-none">
                 <div className="whitespace-pre-line text-sm leading-relaxed">
                   {application.reasoning}
                 </div>
+              </div>
+
+              <div className="border-t pt-3">
+                <h4 className="mb-2 text-sm font-semibold text-muted-foreground">
+                  AI Analysis (live)
+                </h4>
+                {analysisLoading ? (
+                  <p className="text-sm text-muted-foreground">
+                    Running performance analysis with the AI agent…
+                  </p>
+                ) : analysis ?
+                  <div className="whitespace-pre-line text-sm leading-relaxed">
+                    {analysis.response}
+                  </div>
+                : (
+                  <p className="text-sm text-muted-foreground">
+                    Trigger an AI analysis from the dashboard to see a live summary here.
+                  </p>
+                )}
               </div>
             </Card>
 

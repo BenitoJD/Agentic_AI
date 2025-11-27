@@ -11,9 +11,10 @@ import { useSidebar } from "../hooks/useSidebar";
 
 type ChatPageProps = {
   onOpenUploads?: () => void;
+  onOpenHome?: () => void;
 };
 
-export const ChatPage = ({ onOpenUploads }: ChatPageProps) => {
+export const ChatPage = ({ onOpenUploads, onOpenHome }: ChatPageProps) => {
   const {
     threads,
     activeThreadId,
@@ -79,7 +80,12 @@ export const ChatPage = ({ onOpenUploads }: ChatPageProps) => {
       )}
 
       <div className="flex flex-1 flex-col">
-        <Header onMenuClick={open} onUploadsClick={onOpenUploads} subtitle={error ?? undefined} />
+        <Header
+          onMenuClick={open}
+          onUploadsClick={onOpenUploads}
+          onHomeClick={onOpenHome}
+          subtitle={error ?? undefined}
+        />
         <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-10 sm:px-10">
           <div className="mx-auto flex w-full max-w-3xl flex-col">
             {messages.length === 0 && (

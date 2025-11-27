@@ -14,7 +14,12 @@ export default function App() {
   }
 
   if (view === "chat") {
-    return <ChatPage onOpenUploads={() => setView("uploads")} />;
+    return (
+      <ChatPage
+        onOpenUploads={() => setView("uploads")}
+        onOpenHome={() => setView("performance")}
+      />
+    );
   }
 
   return (

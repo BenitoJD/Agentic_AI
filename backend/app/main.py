@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .config import settings
-from .routers import agents, chat, files, kpi
+from .routers import agents, chat, files, kpi, metrics, analysis
 
 
 def create_app() -> FastAPI:
@@ -15,6 +15,8 @@ def create_app() -> FastAPI:
     app.include_router(files.router)
     app.include_router(agents.router)
     app.include_router(kpi.router)
+    app.include_router(metrics.router)
+    app.include_router(analysis.router)
 
     app.add_middleware(
         CORSMiddleware,
