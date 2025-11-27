@@ -84,12 +84,12 @@ export const ChatPage = ({ onOpenUploads }: ChatPageProps) => {
           <div className="mx-auto flex w-full max-w-3xl flex-col">
             {messages.length === 0 && (
               <div className="mb-8 rounded-lg border border-borderDark bg-surfaceMuted px-4 py-3 text-sm text-textSecondary">
-                <p className="mb-2 font-medium text-textPrimary">Welcome to Nova</p>
+                <p className="mb-2 font-medium text-textPrimary">Performance Bottleneck Analyzer</p>
                 <ul className="list-disc space-y-1 pl-5">
-                  <li>Ask questions or give tasks in plain language.</li>
-                  <li>Upload documents in the menu to enable document-based answers.</li>
-                  <li>Nova will pick the right agent automatically (RAG, web search, code review, etc.).</li>
-                  <li>When it’s unsure, it suggests follow-up questions to refine the answer.</li>
+                  <li>Upload log files (.log, .txt) or metrics files (JSON, CSV) to analyze performance bottlenecks.</li>
+                  <li>Ask questions like "What bottlenecks do you see?" or "Analyze the performance issues".</li>
+                  <li>The AI will identify CPU, memory, network, database, and disk I/O bottlenecks.</li>
+                  <li>Get actionable recommendations to resolve performance issues.</li>
                 </ul>
               </div>
             )}

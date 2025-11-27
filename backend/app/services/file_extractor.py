@@ -63,6 +63,24 @@ def _extract_text_from_csv(data: bytes) -> str:
     return "\n".join(", ".join(row) for row in reader)
 
 
+def _extract_text_from_json(data: bytes) -> str:
+    """Extract text from JSON files, preserving structure for metrics analysis."""
+    text = _extract_text_from_txt(data)
+    try:
+        # Try to parse and pretty-print JSON for better readability
+        import json
+        parsed = json.loads(text)
+        return json.dumps(parsed, indent=2)
+    except json.JSONDecodeError:
+        # If not valid JSON, return as-is
+        return text
+
+
+def _extract_text_from_log(data: bytes) -> str:
+    """Extract text from log files, preserving log structure."""
+    return _extract_text_from_txt(data)
+
+
 def _extract_text_from_docx(data: bytes) -> str:
     document = Document(io.BytesIO(data))
     parts = [paragraph.text for paragraph in document.paragraphs if paragraph.text.strip()]
@@ -72,13 +90,37 @@ def _extract_text_from_docx(data: bytes) -> str:
 EXTRACTORS: dict[str, TextExtractor] = {
     ".txt": _extract_text_from_txt,
     ".md": _extract_text_from_txt,
+    ".log": _extract_text_from_log,
     ".csv": _extract_text_from_csv,
     ".tsv": _extract_text_from_csv,
+    ".json": _extract_text_from_json,
     ".pdf": _extract_text_from_pdf,
     ".pptx": _extract_text_from_pptx,
     ".xlsx": _extract_text_from_xlsx,
     ".docx": _extract_text_from_docx,
 }
+
+
+def detect_file_type(filename: str) -> str:
+    """Detect file type for metadata purposes."""
+    suffix = Path(filename.lower()).suffix
+    if suffix in [".log", ".txt"]:
+        # Try to detect if it's a log file by checking common log patterns
+        return "log"
+    elif suffix == ".json":
+        return "json"
+    elif suffix in [".csv", ".tsv"]:
+        return "csv"
+    elif suffix == ".pdf":
+        return "pdf"
+    elif suffix in [".xlsx", ".xls"]:
+        return "excel"
+    elif suffix == ".docx":
+        return "docx"
+    elif suffix == ".pptx":
+        return "pptx"
+    else:
+        return "text"
 
 
 def extract_text(filename: str, data: bytes) -> str:
@@ -90,4 +132,14 @@ def extract_text(filename: str, data: bytes) -> str:
     if not text.strip():
         raise ValueError("No extractable text found in document.")
     return text
+
+
+def get_file_metadata(filename: str) -> dict:
+    """Get metadata for a file based on its type."""
+    file_type = detect_file_type(filename)
+    metadata = {
+        "filename": filename,
+        "file_type": file_type,
+    }
+    return metadata
 

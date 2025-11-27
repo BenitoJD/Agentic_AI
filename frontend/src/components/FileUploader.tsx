@@ -28,8 +28,9 @@ export const FileUploader = ({ onUploaded }: FileUploaderProps) => {
         const text = await response.text();
         throw new Error(text || "Upload failed");
       }
-      const data = (await response.json()) as { filename: string; chunks: number };
-      setMessage(`Embedded ${data.chunks} chunks from ${data.filename}`);
+      const data = (await response.json()) as { filename: string; chunks: number; file_type?: string };
+      const fileTypeLabel = data.file_type ? ` (${data.file_type})` : "";
+      setMessage(`Processed ${data.chunks} chunks from ${data.filename}${fileTypeLabel}`);
       onUploaded?.(data);
     } catch (err) {
       console.error("[upload] failed", err);
@@ -48,9 +49,9 @@ export const FileUploader = ({ onUploaded }: FileUploaderProps) => {
           className="hidden"
           onChange={handleChange}
           disabled={isUploading}
-          accept=".txt,.md,.csv,.tsv,.pdf,.pptx,.xlsx,.docx"
+          accept=".txt,.md,.log,.csv,.tsv,.json,.pdf,.pptx,.xlsx,.docx"
         />
-        {isUploading ? "Uploading…" : "Upload document"}
+        {isUploading ? "Uploading…" : "Upload logs/metrics"}
       </label>
       {message && <p className="mt-2 text-xs leading-4 text-textSecondary">{message}</p>}
     </div>

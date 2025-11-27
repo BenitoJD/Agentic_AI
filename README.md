@@ -1,6 +1,8 @@
-## Multi-Agent Hackathon Stack
+## Performance Bottleneck Analyzer
 
-This repo houses a hackathon-ready, multi-agent demo powered by FastAPI + LangGraph in `backend/` and a React + Vite control room in `frontend/`. Skill packs live under `backend/app/skillpacks` and describe the 25 industry workflows outlined in the brief.
+This application helps performance engineers quickly identify application bottlenecks from logs and metrics data. It uses generative AI to analyze log files and metrics, automatically detecting performance issues and providing actionable recommendations.
+
+The stack is powered by FastAPI + LangGraph in `backend/` and a React + Vite interface in `frontend/`.
 
 ### Prerequisites
 
@@ -15,7 +17,7 @@ This repo houses a hackathon-ready, multi-agent demo powered by FastAPI + LangGr
    pip install -e .
    uvicorn app.main:app --reload
    ```
-   Create a `.env` file (based on the keys referenced in `app/config.py`) to set `OPENAI_API_KEY`, or leave it blank to use the deterministic fallback responses.
+   Create a `.env` file (based on the keys referenced in `app/config.py`) to set your LLM API key (OpenAI, Gemini, or Ollama). See LLM & Embeddings Configuration below.
 
 2. **Frontend**
    ```bash
@@ -24,7 +26,7 @@ This repo houses a hackathon-ready, multi-agent demo powered by FastAPI + LangGr
    npm run dev
    ```
 
-3. Visit `http://localhost:5173` to chat with the orchestrator in a ChatGPT-style interface.
+3. Visit `http://localhost:5173` to start analyzing performance bottlenecks. Upload log files (.log, .txt) or metrics files (JSON, CSV) and ask questions about performance issues.
 
 ### Production / Docker
 
@@ -38,7 +40,7 @@ This will:
 
 - Build and run the **backend** on `http://localhost:8000`
 - Build and run the **frontend** on `http://localhost:5173`
-- Persist the vector store under `backend/data/vector-store` so uploaded documents survive restarts
+- Persist the vector store under `backend/data/vector-store` so uploaded log/metrics files survive restarts
 
 Make sure you have a `backend/.env` file configured as described below before running compose.
 
@@ -48,11 +50,15 @@ Make sure you have a `backend/.env` file configured as described below before ru
 - Frontend: `cd frontend && npm run test`
 - Shared linting configs live alongside each project (`ruff` for Python, ESLint for React).
 
-### Adding New Skill Packs
+### Usage
 
-1. Duplicate an entry in `backend/app/skillpacks/data.py`.
-2. (Optional) Implement custom tool adapters in `backend/app/services/toolkit.py`.
-3. Restart the backend or call `POST /api/chat` to see the new pack in the selector automatically (no additional wiring needed).
+1. **Upload Logs/Metrics**: Use the upload button in the UI to upload log files (.log, .txt) or metrics files (JSON, CSV).
+2. **Ask Questions**: Query the system about performance issues, for example:
+   - "What bottlenecks do you see in the logs?"
+   - "Analyze the performance issues"
+   - "What's causing the slow response times?"
+   - "Identify memory bottlenecks"
+3. **Review Findings**: The AI will identify bottlenecks (CPU, memory, network, database, disk I/O) with severity levels, evidence, and recommendations.
 
 ### LLM & Embeddings Configuration
 
@@ -72,11 +78,17 @@ Make sure you have a `backend/.env` file configured as described below before ru
   VECTOR_STORE_PATH=./data/vector-store
   VECTOR_COLLECTION=uploaded_docs
   ```
-- If Ollama is running locally the planner/executor use it; otherwise OpenAI or Gemini (when their API keys are provided) are used, and deterministic heuristics kick in when none are available. Uploaded files via `/api/files` are chunked into the persistent Chroma store using the Ollama `embedding-gemma` model (or OpenAI embeddings as fallback) so you can extend the system with retrieval later.
+- If Ollama is running locally the system uses it; otherwise OpenAI or Gemini (when their API keys are provided) are used. Uploaded log/metrics files via `/api/files` are chunked into the persistent Chroma store using embeddings for semantic search during bottleneck analysis.
 
 ### Repo Layout
 
-- `backend/`: FastAPI app exposing `/api/packs` and `/api/chat` (JSON responses + LangGraph orchestrator).
-- `frontend/`: Vite-based ChatGPT-like UI with Tailwind styling and automatic agent attribution.
+- `backend/`: FastAPI app exposing `/api/chat` and `/api/files` endpoints with LangGraph orchestrator for performance analysis.
+- `frontend/`: Vite-based ChatGPT-like UI with Tailwind styling for performance bottleneck analysis.
 - `shared/`: TypeScript definitions shared between frontend code and future generated clients/tests.
+
+### Supported File Types
+
+- **Log Files**: `.log`, `.txt` (application logs, error logs, access logs)
+- **Metrics Files**: `.json` (Prometheus, custom JSON metrics), `.csv`, `.tsv` (time-series metrics)
+- **Other**: `.pdf`, `.docx`, `.xlsx`, `.pptx` (for documentation or reports)
 

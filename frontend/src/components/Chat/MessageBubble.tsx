@@ -2,10 +2,12 @@ import { motion } from "framer-motion";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypePrism from "rehype-prism-plus";
-import { Copy, AlertTriangle } from "lucide-react";
+import { Copy, AlertTriangle, Info } from "lucide-react";
 import { useState } from "react";
 
 import type { ChatMessage } from "@shared/types";
+import { BottleneckDisplay } from "../BottleneckDisplay";
+import { KPIEditModal } from "../KPIEditModal";
 
 type MessageBubbleProps = {
   message: ChatMessage;
@@ -27,6 +29,10 @@ export const MessageBubble = ({ message, animate = true }: MessageBubbleProps) =
     : hasSources
     ? "Mode: Docs"
     : "Mode: Direct";
+  const [showKPIModal, setShowKPIModal] = useState(false);
+  
+  // Show explain button for assistant messages (especially performance analysis)
+  const showExplainButton = !isUser && (hasSources || message.bottlenecks?.length);
 
   return (
     <motion.div
@@ -37,7 +43,7 @@ export const MessageBubble = ({ message, animate = true }: MessageBubbleProps) =
       className="flex w-full"
     >
       <div
-        className={`max-w-[75%] rounded-xl px-4 py-2.5 text-sm md:text-base ${
+        className={`${isUser ? "max-w-[75%]" : "max-w-[95%] md:max-w-[92%]"} rounded-xl px-4 py-2.5 text-sm md:text-base ${
           isUser
             ? "ml-auto bg-bubbleUser text-white"
             : "mr-auto bg-bubbleAssistant text-textPrimary"
@@ -57,9 +63,24 @@ export const MessageBubble = ({ message, animate = true }: MessageBubbleProps) =
 
             <Markdown content={message.content || "…"} />
 
+            {message.bottlenecks && message.bottlenecks.length > 0 && (
+              <BottleneckDisplay bottlenecks={message.bottlenecks} />
+            )}
+
             {hasSources && (
               <div className="mt-3 border-t border-borderDark/50 pt-2">
-                <p className="mb-1 text-[11px] font-medium text-textSecondary">Sources</p>
+                <div className="flex items-center justify-between mb-1">
+                  <p className="text-[11px] font-medium text-textSecondary">Sources</p>
+                  {showExplainButton && (
+                    <button
+                      onClick={() => setShowKPIModal(true)}
+                      className="inline-flex items-center gap-1 text-[11px] text-blue-400 hover:text-blue-300 transition-colors"
+                    >
+                      <Info className="h-3 w-3" />
+                      Explain KPIs
+                    </button>
+                  )}
+                </div>
                 <ul className="space-y-0.5 text-[11px] text-textSecondary">
                   {message.sources.map((source) => (
                     <li key={source} className="truncate">
@@ -79,6 +100,28 @@ export const MessageBubble = ({ message, animate = true }: MessageBubbleProps) =
                   ))}
                 </ul>
               </div>
+            )}
+
+            {showExplainButton && !hasSources && (
+              <div className="mt-3 border-t border-borderDark/50 pt-2">
+                <button
+                  onClick={() => setShowKPIModal(true)}
+                  className="inline-flex items-center gap-1 text-[11px] text-blue-400 hover:text-blue-300 transition-colors"
+                >
+                  <Info className="h-3 w-3" />
+                  Explain KPIs
+                </button>
+              </div>
+            )}
+
+            {showKPIModal && (
+              <KPIEditModal
+                isOpen={showKPIModal}
+                onClose={() => setShowKPIModal(false)}
+                onSave={() => {
+                  // Optionally refresh or notify parent
+                }}
+              />
             )}
 
             {hasFollowUps && (

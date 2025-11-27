@@ -1,4 +1,4 @@
-from . import chat, files
+from . import chat, files, kpi
 
-__all__ = ["chat", "files"]
+__all__ = ["chat", "files", "kpi"]
 
